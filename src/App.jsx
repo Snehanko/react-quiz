@@ -1,31 +1,32 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [showScore, setShowScore] = useState(false)
   const [correctQuestion, setCorrectQuestion] = useState(0)
+  const [category, setCategory] = useState("music")
+  const [difficulties, setDifficulty] = useState("easy")
+  const [quizQuestions, setQuizQuestions] = useState([])
 
-  const questions = [
-    {
-      questionText: 'What is ReactJS?',
-      answerText: [
-        { answer: "JS Framework", isCorrect: true },
-        { answer: "Coding Language", isCorrect: false },
-        { answer: "Cursive English", isCorrect: false },
-        { answer: "Just a Subject", isCorrect: false },
-      ]
-    },
-    {
-      questionText: 'Who is CEO of Teslsa?',
-      answerText: [
-        { answer: "Sudnar Pichai", isCorrect: false },
-        { answer: "Satya Nadella", isCorrect: false },
-        { answer: "Elon Musk", isCorrect: true },
-        { answer: "Mark Zuckerberg", isCorrect: false },
-      ]
+
+  useEffect(() => {
+    const loadQuestion = async () => {
+      try {
+        let response = await fetch(`https://the-trivia-api.com/v2/questions?categories=${category}&difficulties=${difficulties}`)
+        let data = await response.json()
+        setQuizQuestions(data)
+      }
+      catch (err) {
+        console.log(err.message)
+      }
     }
-  ]
+
+    loadQuestion()
+    console.log(quizQuestions)
+  }, [])
+
+
 
   const handleNextQuestion = (isCorrect) => {
     if (isCorrect === true) {
@@ -46,22 +47,24 @@ function App() {
     <>
       <h1>React Quiz App</h1>
       {
-        showScore ? <div>You Scored {correctQuestion} out of {questions.length} questions</div> :
-          <div className="app">
-            <div className='question-section'>
-              <div className="question-count">
-                <span>Question {currentQuestion + 1}</span>
+        showScore ? <div>You Scored {correctQuestion} out of {quizQuestions.length} questions</div> :
+          quizQuestions.map((question) => {
+            <div className="app">
+              <div className='question-section'>
+                <div className="question-count">
+                  <span>Question Number {currentQuestion + 1}</span>
+                </div>
+                <div className="question-text">
+                  {question.id}
+                </div>
               </div>
-              <div className="question-text">
-                {questions[currentQuestion].questionText}
+              <div className="answer-section">
+                {/* {
+                quizQuestions[currentQuestion].incorrectAnswers.map((answerOption) => <button>{answerOption}</button>)
+              } */}
               </div>
             </div>
-            <div className="answer-section">
-              {
-                questions[currentQuestion].answerText.map((answerOption) => <button onClick={() => handleNextQuestion(answerOption.isCorrect)}>{answerOption.answer}</button>)
-              }
-            </div>
-          </div>
+          })
       }
 
     </>
