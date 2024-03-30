@@ -8,6 +8,7 @@ function App() {
   const [category, setCategory] = useState("music")
   const [difficulties, setDifficulty] = useState("easy")
   const [quizQuestions, setQuizQuestions] = useState([])
+  const [isLoading, setLoading] = useState(true)
 
 
   useEffect(() => {
@@ -16,6 +17,7 @@ function App() {
         let response = await fetch(`https://the-trivia-api.com/v2/questions?categories=${category}&difficulties=${difficulties}`)
         let data = await response.json()
         setQuizQuestions(data)
+        setLoading(false)
       }
       catch (err) {
         console.log(err.message)
@@ -47,26 +49,24 @@ function App() {
     <>
       <h1>React Quiz App</h1>
       {
-        showScore ? <div>You Scored {correctQuestion} out of {quizQuestions.length} questions</div> :
-          quizQuestions.map((question) => {
+        isLoading ? <h1>Loading</h1> : quizQuestions ?
+          showScore ? <div>You Scored {correctQuestion} out of {quizQuestions.length} questions</div> :
             <div className="app">
               <div className='question-section'>
                 <div className="question-count">
                   <span>Question Number {currentQuestion + 1}</span>
                 </div>
                 <div className="question-text">
-                  {question.id}
+                  {quizQuestions[currentQuestion].question.text}
                 </div>
               </div>
               <div className="answer-section">
-                {/* {
-                quizQuestions[currentQuestion].incorrectAnswers.map((answerOption) => <button>{answerOption}</button>)
-              } */}
+                {
+                  quizQuestions[currentQuestion].incorrectAnswers.map((answerOption) => <button>{answerOption}</button>)
+                }
               </div>
-            </div>
-          })
+            </div> : <h1> No Data Available </h1>
       }
-
     </>
   )
 }
